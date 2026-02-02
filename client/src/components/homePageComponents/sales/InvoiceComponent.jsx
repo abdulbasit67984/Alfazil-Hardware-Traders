@@ -729,7 +729,7 @@ const InvoiceComponent = () => {
     if (searchQuery) {
       const results = allProducts.filter(
         (product) =>
-          product.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.productCode?.toLowerCase().includes(searchQuery.toLowerCase())
       );
       const top200Products = results.slice(0, 250)

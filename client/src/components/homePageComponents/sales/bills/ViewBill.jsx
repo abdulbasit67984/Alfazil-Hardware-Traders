@@ -2,8 +2,8 @@
 import React from 'react';
 import Logo from '../../../Logo';
 import commonFunction from '../../../../features/functions';
-import billLogo from '../../../../assets/billLogo.png'
-import paymentQR from '../../../../assets/paymentQR.jpg'
+import billLogo from '../../../../assets/billLogo.jpeg'
+import paymentQR from '../../../../assets/paymentQR.jpeg'
 // import { useSelector } from 'react-redux';
 
 // ViewBill component wrapped in forwardRef
@@ -17,6 +17,9 @@ const ViewBill = React.forwardRef((props, ref) => {
 
     const exemptedParagraph = bill?.BusinessId?.exemptedParagraph
 
+    console.log(bill)
+    const businessName = bill?.BusinessId?.businessName;
+
     return bill && (
         <div className=' h-[28rem] shadow-lg overflow-y-auto scrollbar-thin'>
             <div ref={ref} className="view-bill p-4 pt-8 bg-white" >
@@ -24,15 +27,15 @@ const ViewBill = React.forwardRef((props, ref) => {
                 <div className="flex justify-center">
 
                     <div className=''>
-                        <img src={billLogo} alt="" className='w-40 mt-2' />
+                        {/* <img src={billLogo} alt="" className='w-40 ' /> */}
                     </div>
 
                     <div className='text-center w-full'>
                         <div className='flex pl-4'>
-                            
+
                             <div className='flex items-end justify-center '>
-                                <span className='text-4xl font-extrabold pb-2 pr-2'>New </span> <h2 className="text-xl font-bold pb-2"> ALFAZIL HARDWARE TRADERS</h2>
-                                <span className='text-xs pb-6 pl-2'></span>
+                                <span className='text-4xl font-extrabold pb-2 pr-2'>{businessName?.split(' ')[0]} </span> <h2 className="text-xl font-bold pb-2"> {businessName?.split(' ').slice(1).join(' ')}</h2>
+
                             </div>
                         </div>
                         <p className="text-sm ">{bill?.storeAddress}</p>
@@ -109,7 +112,7 @@ const ViewBill = React.forwardRef((props, ref) => {
                                         </div>
                                     </td>
                                     <td className="text-xs p-2">
-                                        {item.billItemPack + " " + (item.productId?.packUnit?.toUpperCase() ||"PCS")}
+                                        {item.billItemPack + " " + (item.productId?.packUnit?.toUpperCase() || "PCS")}
                                     </td>
                                     {!packingSlip &&
                                         <td className="text-xs p-2">
@@ -172,6 +175,13 @@ const ViewBill = React.forwardRef((props, ref) => {
                                 {showPreviousBalance && <p className='font-bold'><span className='inline-block font-medium w-44'>Total Balance:</span> {previousBalance && commonFunction.formatAsianNumber(previousBalance)}</p>}
                             </div>
                         </div>
+                    </div>
+                }
+
+                {!packingSlip &&
+                    <div className='mt-3'>
+                        <p className='text-[12px] text-right'>  نوٹ:  کوئی بھی آئیٹم واپس یا تبدیل ہو سکتا ہے بشرطیکہ وہ اپنی اصلی حالت میں ہو اور مکمل پیکنگ میں ہو۔ چائنہ آئیٹمز کی واپسی نہیں ہوگی۔ کسی بھی آئٹم کی واپسی صرف بل یا رسید کی موجودگی میں ہی قابل قبول ہوگی۔ واپسی ۱ مہینہ  کے  اندر  قابل قبول ہو گی اس کے بعد نہیں ہو گی
+                        </p>
                     </div>
                 }
 
