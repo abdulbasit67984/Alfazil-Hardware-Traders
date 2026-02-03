@@ -54,8 +54,8 @@ const SaleReturnAgainstBill = () => {
   useEffect(() => {
     if (productSearch.trim() && bill?.billItems) {
       const filtered = bill.billItems.filter((item) =>
-        item?.productId?.productName?.toLowerCase().includes(productSearch.toLowerCase()) ||
-        item?.productId?.productCode?.toLowerCase().includes(productSearch.toLowerCase())
+        item?.productId?.productName?.toLowerCase().includes(productSearch?.toLowerCase()) ||
+        item?.productId?.productCode?.toLowerCase().includes(productSearch?.toLowerCase())
       );
       setFilteredProducts(filtered);
     } else {

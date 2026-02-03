@@ -35,8 +35,8 @@ const DirectSaleReturn = () => {
     if (productSearch) {
       const results = allProducts.filter(
         (product) =>
-          product.productName.toLowerCase().includes(productSearch.toLowerCase()) ||
-          product.productCode?.toLowerCase().includes(productSearch.toLowerCase())
+          product.productName?.toLowerCase().includes(productSearch?.toLowerCase()) ||
+          product.productCode?.toLowerCase().includes(productSearch?.toLowerCase())
       );
       setFilteredProducts(results);
     } else {
