@@ -238,7 +238,7 @@ const StockRegistrationForm = () => {
               {/* Sale Prices */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="mb-2">
-                  <label className="block text-gray-700 text-xs">Sale Price 1: <span className='text-red-500 pr-2'>*</span></label>
+                  <label className="block text-gray-700 text-xs">Sale Price 1 (Retail): <span className='text-red-500 pr-2'>*</span></label>
                   <input
                     type="text"
                     {...register('salePrice1', { required: 'Price 1 is required' })}
@@ -246,7 +246,7 @@ const StockRegistrationForm = () => {
                   />
                 </div>
                 <div className="mb-2">
-                  <label className="block text-gray-700 text-xs">Sale Price 2</label>
+                  <label className="block text-gray-700 text-xs">Sale Price 2 (Wholesale)</label>
                   <input
                     type="text"
                     {...register('salePrice2')}
