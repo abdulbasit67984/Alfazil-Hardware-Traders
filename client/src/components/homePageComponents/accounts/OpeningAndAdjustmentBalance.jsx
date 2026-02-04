@@ -97,7 +97,7 @@ const OpeningAndAdjustmentBalance = () => {
             ))}
           </select>
           <Input
-          label="Debit"
+            label="Debit"
             type='number'
             name="debit"
             placeholder="Debit"
@@ -106,7 +106,7 @@ const OpeningAndAdjustmentBalance = () => {
             className="w-full p-2 border rounded-md"
           />
           <Input
-          label="Credit"
+            label="Credit"
             type='number'
             name="credit"
             placeholder="Credit"
@@ -151,7 +151,8 @@ const OpeningAndAdjustmentBalance = () => {
 
       {/* Open Account Balance */}
       <div className="p-6 bg-white border rounded-lg shadow-md">
-        <h2 className="text-xl font-semibold mb-4">Open Account Balance</h2>
+        <h2 className="text-xl font-semibold mb-2">Open Account Balance</h2>
+        <p className='text-[10px] mb-2'>Note: Supplier and Company Balance should be opened as negative value i.e. (-1000) and customer balance as positive value i.e. (1000).</p>
         <form onSubmit={(e) => handleSubmit(e, 'open-account-balance', openFormData)} className="space-y-4" >
           <select
             name="accountId"
