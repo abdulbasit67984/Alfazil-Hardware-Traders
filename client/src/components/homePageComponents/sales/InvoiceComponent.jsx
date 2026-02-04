@@ -43,6 +43,7 @@ import { useReactToPrint } from "react-to-print";
 import ViewBill from "./bills/ViewBill";
 import ViewBillThermal from "./bills/ViewBillThermal";
 import AddCustomer from './AddCustomer';
+import ProductHistoryModal from './ProductHistoryModal';
 
 
 const InvoiceComponent = () => {
@@ -78,6 +79,9 @@ const InvoiceComponent = () => {
   const [bill, setBill] = useState(null)
 
   const [showAddCustomer, setShowAddCustomer] = useState(false)
+
+  const [showProductHistoryModal, setShowProductHistoryModal] = useState(false);
+  const [selectedProductForHistory, setSelectedProductForHistory] = useState(null);
 
   const [showAddExtraProductModal, setShowAddExtraProductModal] = useState(false);
   const [extraProduct, setExtraProduct] = useState({
@@ -328,6 +332,15 @@ const InvoiceComponent = () => {
     updatedItems.splice(index, 1);
     dispatch(setSelectedItems(updatedItems));
     updateTotals();
+  }
+
+  const handleShowProductHistory = (item) => {
+    if (!customerId) {
+      alert('Please select a customer first to view product history.');
+      return;
+    }
+    setSelectedProductForHistory(item);
+    setShowProductHistoryModal(true);
   }
 
   const updateTotals = () => {
@@ -900,6 +913,19 @@ const InvoiceComponent = () => {
         </div>
       )}
 
+      {/* Product History Modal */}
+      <ProductHistoryModal
+        isOpen={showProductHistoryModal}
+        onClose={() => {
+          setShowProductHistoryModal(false);
+          setSelectedProductForHistory(null);
+        }}
+        customerId={customerId}
+        productId={selectedProductForHistory?._id}
+        productName={selectedProductForHistory?.productName}
+        customerName={customerData?.find(c => c._id === customerId)?.customerName}
+      />
+
       <div style={{ display: "none" }}>
         {billType === "thermal" ? (
           <ViewBillThermal
@@ -1403,7 +1429,14 @@ const InvoiceComponent = () => {
                       />
                     </td>
                     <td className=" px-1">{netAmount}</td>
-                    <td className=" px-1">
+                    <td className=" px-1 flex gap-1">
+                      <button
+                        className={`px-2 py-1 text-xs text-white bg-blue-500 hover:bg-blue-700 rounded-lg`}
+                        onClick={() => handleShowProductHistory(item)}
+                        title="View product history for this customer"
+                      >
+                        <span>History</span>
+                      </button>
                       <button
                         className={`px-2 py-1 text-xs text-white bg-red-500 hover:bg-red-700 rounded-lg`}
                         onClick={() => handleRemoveItem(index)}

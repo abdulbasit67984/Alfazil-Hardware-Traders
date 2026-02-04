@@ -1193,6 +1193,65 @@ const billPosting = asyncHandler(async (req, res) => {
 
 
 
+const getProductHistoryForCustomer = asyncHandler(async (req, res) => {
+    const { customerId, productId } = req.query;
+
+    const user = req.user;
+    if (!user) {
+        throw new ApiError(401, "Authorization Failed!");
+    }
+
+    const BusinessId = user.BusinessId;
+
+    if (!customerId || !productId) {
+        throw new ApiError(400, "Customer ID and Product ID are required!");
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(customerId) || !mongoose.Types.ObjectId.isValid(productId)) {
+        throw new ApiError(400, "Invalid Customer ID or Product ID format!");
+    }
+
+    // Find all bills for this customer that contain this product
+    const bills = await Bill.find({
+        BusinessId,
+        customer: customerId,
+        'billItems.productId': productId
+    })
+        .populate('customer', 'customerName')
+        .populate({
+            path: 'billItems.productId',
+            select: 'productName productCode productPack'
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+
+    // Extract only the relevant product from each bill's items
+    const productHistory = bills.map((bill) => {
+        const productItem = bill.billItems.find(
+            (item) => item.productId?._id?.toString() === productId
+        );
+
+        return {
+            billNo: bill.billNo,
+            billDate: bill.createdAt,
+            billType: bill.billType,
+            productName: productItem?.productId?.productName || 'N/A',
+            productCode: productItem?.productId?.productCode || 'N/A',
+            quantity: productItem?.quantity || 0,
+            billItemUnit: productItem?.billItemUnit || 0,
+            billItemPack: productItem?.billItemPack || 1,
+            billItemPrice: productItem?.billItemPrice || 0,
+            billItemDiscount: productItem?.billItemDiscount || 0,
+            totalAmount: ((productItem?.quantity || 0) * (productItem?.billItemPrice || 0) *
+                (1 - (productItem?.billItemDiscount || 0) / 100)).toFixed(2)
+        };
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, productHistory, "Product history for customer retrieved successfully!")
+    );
+});
+
 export {
     registerBill,
     mergeBills,
@@ -1201,5 +1260,6 @@ export {
     getLastBillNo,
     getSingleBill,
     billPayment,
-    billPosting
+    billPosting,
+    getProductHistoryForCustomer
 }

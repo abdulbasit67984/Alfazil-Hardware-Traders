@@ -457,6 +457,27 @@ export class Config {
         }
     }
 
+    async fetchProductHistoryForCustomer(customerId, productId) {
+        try {
+            const response = await this.client.get(`/bill/get-product-history`, {
+                params: { customerId, productId },
+                headers: {
+                    Authorization: ` Bearer ${authService.getAccessToken()}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response) {
+                return response.data;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Error in Fetching Product History:", error);
+            throw error;
+        }
+    }
+
 
     async createInvoice({ ...props }) {
         try {
