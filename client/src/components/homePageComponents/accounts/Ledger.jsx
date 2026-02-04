@@ -11,8 +11,9 @@ import JournalEntryModal from "./JournalEntryModal.jsx";
 
 import { refreshLedgerData } from "../../../utils/refreshLedger.js";
 import Input from "../../Input.jsx";
-import { ArrowUpCircle, ArrowDownCircle, Eye, EyeOff } from "lucide-react";
+import { ArrowUpCircle, ArrowDownCircle, Eye, EyeOff, FileText } from "lucide-react";
 import { motion } from "framer-motion";
+import AccountsPreviewModal from "./AccountsPreviewModal.jsx";
 
 const Ledger = () => {
   const [accounts, setAccounts] = useState([]);
@@ -43,6 +44,7 @@ const Ledger = () => {
 
   const [showJournalModal, setShowJournalModal] = useState(false);
   const [journalAccount, setJournalAccount] = useState(null);
+  const [showAccountsPreviewModal, setShowAccountsPreviewModal] = useState(false);
 
   const [accountBalances, setAccountBalances] = useState({});
 
@@ -396,6 +398,13 @@ const Ledger = () => {
           !selectedAccount && (
             <div className="flex gap-3 items-center">
               <button
+                onClick={() => setShowAccountsPreviewModal(true)}
+                className="p-2 rounded-full hover:bg-gray-200 transition"
+                title="Print Accounts Preview"
+              >
+                <FileText className="w-6 h-6 text-blue-600" />
+              </button>
+              <button
                 onClick={() => setShowTotals(!showTotals)}
                 className="p-2 rounded-full hover:bg-gray-200 transition"
                 title={showTotals ? "Hide totals" : "Show totals"}
@@ -702,6 +711,15 @@ const Ledger = () => {
           onSuccess={handleJournalEntrySuccess}
         />
       )}
+
+      {/* Accounts Preview Modal */}
+      <AccountsPreviewModal
+        isOpen={showAccountsPreviewModal}
+        onClose={() => setShowAccountsPreviewModal(false)}
+        accounts={accounts}
+        getComputedBalance={getComputedBalance}
+        businessName={userData?.BusinessId?.businessName || "Business"}
+      />
 
     </div>
   );
