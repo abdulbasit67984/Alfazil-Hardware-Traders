@@ -191,18 +191,18 @@ const InvoiceComponent = () => {
         // Restrict quantity not to exceed maxQuantity
         if (key === "quantity") {
           const newQty = parseFloat(value) || 0;
-          if (newQty > item.productTotalQuantity / item.productPack) {
-            alert(`You cannot exceed stock limit! Max: ${Math.floor(item.productTotalQuantity / item.productPack)} ${item.quantityUnit}`);
-            return { ...item, quantity: Math.floor(item.productTotalQuantity / item.productPack) };
-          }
+          // if (newQty > item.productTotalQuantity / item.productPack) {
+          //   alert(`You cannot exceed stock limit! Max: ${Math.floor(item.productTotalQuantity / item.productPack)} ${item.quantityUnit}`);
+          //   return { ...item, quantity: Math.floor(item.productTotalQuantity / item.productPack) };
+          // }
           return { ...item, quantity: newQty };
         }
         if (key === "billItemUnit") {
           const newUnits = parseInt(value) || 0;
-          if (newUnits > item.productTotalQuantity) {
-            alert(`You cannot exceed stock limit! Max: ${item.maxQuantity} ${item.packUnit}`);
-            return { ...item, billItemUnit: item.productTotalQuantity };
-          }
+          // if (newUnits > item.productTotalQuantity) {
+          //   alert(`You cannot exceed stock limit! Max: ${item.maxQuantity} ${item.packUnit}`);
+          //   return { ...item, billItemUnit: item.productTotalQuantity };
+          // }
           return { ...item, billItemUnit: newUnits };
         }
         return { ...item, [key]: value };
@@ -215,10 +215,10 @@ const InvoiceComponent = () => {
   };
 
   const handleAddProduct = () => {
-    if (product.productTotalQuantity <= 0) {
-      alert("Product is out of stock!");
-      return;
-    }
+    // if (product.productTotalQuantity <= 0) {
+    //   alert("Product is out of stock!");
+    //   return;
+    // }
     if (productName !== '') {
       const existingProductIndex = selectedItems.findIndex(
         (item) => item._id === product._id
@@ -229,10 +229,10 @@ const InvoiceComponent = () => {
         const updatedItems = selectedItems.map((item, index) => {
           if (index === existingProductIndex) {
             const newQty = parseFloat(item.quantity) + parseFloat(productQuantity);
-            if (newQty > item.maxQuantity) {
-              alert(`Cannot add more than ${item.maxQuantity} in stock.`);
-              return { ...item, quantity: item.maxQuantity };
-            }
+            // if (newQty > item.maxQuantity) {
+            //   alert(`Cannot add more than ${item.maxQuantity} in stock.`);
+            //   return { ...item, quantity: item.maxQuantity };
+            // }
             return { ...item, quantity: newQty };
           }
           return item;
@@ -241,10 +241,10 @@ const InvoiceComponent = () => {
         dispatch(setSelectedItems(updatedItems));
       } else {
         // New product: check stock before adding
-        if (productQuantity > product.productTotalQuantity) {
-          alert(`You cannot add more than ${product.productTotalQuantity} in stock.`);
-          return;
-        }
+        // if (productQuantity > product.productTotalQuantity) {
+        //   alert(`You cannot add more than ${product.productTotalQuantity} in stock.`);
+        //   return;
+        // }
 
         const newProduct = {
           ...product,
