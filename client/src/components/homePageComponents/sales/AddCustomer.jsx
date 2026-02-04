@@ -186,8 +186,8 @@ const AddCustomer = ({ onCustomerCreated }) => {
                 className={`border p-1  rounded w-full`}
               >
                 {/* <option value="">Select Flag</option> */}
-                <option className='bg-red-500 text-white text-center' value="red">Red</option>
-                <option className='bg-green-500 text-white text-center' value="green">Green</option>
+                <option className='bg-red-500 text-white text-center' value="red">Red (Retail)</option>
+                <option className='bg-green-500 text-white text-center' value="green">Green (Wholesale)</option>
                 <option className='bg-yellow-500 text-center text-white' value="yellow">Yellow</option>
                 <option className='bg-white  text-center' value="white">White</option>
               </select>
