@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js"
+    "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "start": "node -r dotenv/config --experimental-json-modules src/index.js"
   },
   "keywords": [
     "erp",
@@ -30,7 +31,7 @@
     "puppeteer": "^24.26.0",
     "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.34.1"
+    "whatsapp-web.js": "^1.34.6"
   },
   "devDependencies": {
     "prettier": "^3.3.3"

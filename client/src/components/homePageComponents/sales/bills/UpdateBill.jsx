@@ -8,6 +8,8 @@ import Button from "../../../Button";
 import Loader from "../../../../pages/Loader";
 import DeleteConfirmation from "../../../DeleteConfirmation";
 import UpdateConfirmation from "../../../UpdateConfirmation";
+import { showSuccessToast, showErrorToast } from "../../../../utils/toast";
+import ConfirmationModal from "../../../ConfirmationModal";
 
 const UpdateBill = ({ billId, setIsEditing }) => {
   const [billData, setBillData] = useState(null);
@@ -16,6 +18,10 @@ const UpdateBill = ({ billId, setIsEditing }) => {
   const [isPopupOpen, setPopupOpen] = useState(false);
   const [isSavePopupOpen, setSavePopupOpen] = useState(false);
   const [itemIndex, setItemIndex] = useState(null);
+
+  // Confirmation modal state for extra item delete
+  const [showDeleteExtraConfirm, setShowDeleteExtraConfirm] = useState(false);
+  const [extraItemIndexToDelete, setExtraItemIndexToDelete] = useState(null);
 
   const customerData = useSelector((state) => state.customers.customerData);
 
@@ -60,9 +66,16 @@ const UpdateBill = ({ billId, setIsEditing }) => {
   };
 
   const handleDeleteExtra = (index) => {
-    if (!window.confirm("Delete this extra item?")) return;
-    const updatedExtras = (billData.extraItems || []).filter((_, i) => i !== index);
+    setExtraItemIndexToDelete(index);
+    setShowDeleteExtraConfirm(true);
+  };
+
+  const confirmDeleteExtra = () => {
+    const updatedExtras = (billData.extraItems || []).filter((_, i) => i !== extraItemIndexToDelete);
     setBillData({ ...billData, extraItems: updatedExtras });
+    setShowDeleteExtraConfirm(false);
+    setExtraItemIndexToDelete(null);
+    showSuccessToast('Extra item removed!');
   };
 
   const calculateTotals = () => {
@@ -113,9 +126,10 @@ const UpdateBill = ({ billId, setIsEditing }) => {
       };
 
       await config.updateInvoice(updatedBill);
-      alert("Bill updated successfully!");
+      showSuccessToast("Bill updated successfully!");
     } catch (err) {
       setError("Failed to update the bill.");
+      showErrorToast("Failed to update the bill.");
     } finally {
       setIsLoading(false);
       setSavePopupOpen(false);
@@ -315,6 +329,20 @@ const UpdateBill = ({ billId, setIsEditing }) => {
           close
         </Button>
       </div>
+
+      {/* Delete Extra Item Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showDeleteExtraConfirm}
+        onConfirm={confirmDeleteExtra}
+        onCancel={() => {
+          setShowDeleteExtraConfirm(false);
+          setExtraItemIndexToDelete(null);
+        }}
+        title="Delete Extra Item"
+        message="Are you sure you want to delete this extra item?"
+        type="delete"
+        confirmText="Delete"
+      />
     </div>
   );
 };

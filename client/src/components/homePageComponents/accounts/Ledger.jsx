@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import Loader from "../../../pages/Loader";
 import functions from "../../../features/functions"
 import JournalEntryModal from "./JournalEntryModal.jsx";
+import { showSuccessToast, showErrorToast } from "../../../utils/toast";
 
 import { refreshLedgerData } from "../../../utils/refreshLedger.js";
 import Input from "../../Input.jsx";
@@ -239,11 +240,13 @@ const Ledger = () => {
         setAdjustFormData({ reason: "", debit: 0, credit: 0 });
         setShowAdjustModal(false);
         setAdjustSuccess("Balance adjusted successfully");
+        showSuccessToast("Balance adjusted successfully");
         setTimeout(() => setAdjustSuccess(null), 3000);
 
       }
     } catch (err) {
       setAdjustError(err.response?.data?.message || "Failed to adjust balance");
+      showErrorToast(err.response?.data?.message || "Failed to adjust balance");
     } finally {
       setAdjustLoading(false);
     }
@@ -269,7 +272,7 @@ const Ledger = () => {
   };
 
   const handleJournalEntrySuccess = async () => {
-    setShowJournalModal(false);
+    // Don't close modal here - let JournalEntryModal handle closing after slip is printed/closed
     const { accounts: updatedAccounts, ledger: updatedLedger } = await fetchAccountsAndLedger();
 
     // Update state with the new data
@@ -707,6 +710,7 @@ const Ledger = () => {
       {showJournalModal && selectedAccount && (
         <JournalEntryModal
           account={selectedAccount}
+          accountBalance={getComputedBalance(selectedAccount)}
           onClose={() => setShowJournalModal(false)}
           onSuccess={handleJournalEntrySuccess}
         />

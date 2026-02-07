@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import config from '../../../features/config';
 import Button from '../../Button';
 import Input from '../../Input';
-import ErrorResponseMessage from '../../ErrorResponseMessage';
-import SuccessResponseMessage from '../../SuccessResponseMessage';
 import Loader from '../../../pages/Loader';
 import { extractErrorMessage } from '../../../utils/extractErrorMessage';
+import { showSuccessToast, showErrorToast } from '../../../utils/toast';
 
 const OpeningAndAdjustmentBalance = () => {
   const [error, setError] = useState(null);
@@ -52,9 +51,13 @@ const OpeningAndAdjustmentBalance = () => {
     setSuccess(null);
     try {
       const response = await config.openCloseAccountBalance({ endpoint, formData });
-      if (response) setSuccess(response.data.message || 'Operation successful');
+      if (response) {
+        setSuccess(response.data.message || 'Operation successful');
+        showSuccessToast(response.data.message || 'Operation successful');
+      }
     } catch (error) {
       setError(extractErrorMessage(error));
+      showErrorToast(extractErrorMessage(error) || 'Operation failed');
     } finally {
       setLoading(false);
     }
@@ -67,23 +70,8 @@ const OpeningAndAdjustmentBalance = () => {
       {/* Adjust Account Balance */}
       <div className="p-6 bg-white border rounded-lg shadow-md">
         <h2 className="text-xl font-semibold mb-4">Adjust Account Balance</h2>
-        {error &&
-          <ErrorResponseMessage
-            isOpen={error}
-            onClose={() => {
-              setError("")
-            }}
-            errorMessage={error} />
-        }
-        {success &&
-          <SuccessResponseMessage
-            message={success}
-            isOpen={success}
-            onClose={() => {
-              setSuccess("")
-            }}
-          />
-        }
+        {error && <p className='text-red-600'>{error}</p>}
+        {success && <p className='text-green-600'>{success}</p>}
         <form onSubmit={(e) => handleSubmit(e, 'adjust-account-balance', adjustFormData)} className="space-y-4">
           <select
             name="accountId"

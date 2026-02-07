@@ -15,6 +15,7 @@ import Input from '../../Input';
 import Button from '../../Button';
 import config from '../../../features/config'; // Import your config file
 import ProductHistoryModal from './ProductHistoryModal';
+import { showErrorToast, showWarningToast, showSuccessToast } from '../../../utils/toast';
 
 const DirectSaleReturn = () => {
   const dispatch = useDispatch();
@@ -114,7 +115,7 @@ const DirectSaleReturn = () => {
 
   const handleShowProductHistory = (item) => {
     if (!customer) {
-      alert('Please select a customer first to view product history.');
+      showWarningToast('Please select a customer first to view product history.');
       return;
     }
     setSelectedProductForHistory(item);
@@ -129,7 +130,7 @@ const DirectSaleReturn = () => {
 
   const handleSubmit = async () => {
     if (selectedItems.length === 0) {
-      alert("Please select add items for return.");
+      showWarningToast("Please add items for return.");
       return;
     }
     console.log('first', selectedItems)
@@ -160,6 +161,7 @@ const DirectSaleReturn = () => {
         
       if (response) {
         setSubmitSuccess(true);
+        showSuccessToast("Sale return processed successfully!");
         dispatch(resetSaleReturn());
       }
     } catch (error) {
@@ -171,6 +173,7 @@ const DirectSaleReturn = () => {
         const preContent = doc.querySelector('pre')?.innerHTML.replace(/<br\s*\/?>/gi, '\n');
         // errorMessage = preContent?.split('\n')[0] || errorMessage;
         setSubmitError(preContent);
+        showErrorToast(preContent || "An error occurred.");
       }
     } finally {
       setIsLoading(false);

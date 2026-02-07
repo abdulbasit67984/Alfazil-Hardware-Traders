@@ -44,6 +44,8 @@ import ViewBill from "./bills/ViewBill";
 import ViewBillThermal from "./bills/ViewBillThermal";
 import AddCustomer from './AddCustomer';
 import ProductHistoryModal from './ProductHistoryModal';
+import { showWarningToast, showSuccessToast, showInfoToast } from '../../../utils/toast';
+import ConfirmationModal from '../../ConfirmationModal';
 
 
 const InvoiceComponent = () => {
@@ -91,6 +93,12 @@ const InvoiceComponent = () => {
     salePrice: 0,
     quantity: 1
   });
+
+  // Confirmation modal states
+  const [showGenerateInvoiceConfirm, setShowGenerateInvoiceConfirm] = useState(false);
+  const [showClearInvoiceConfirm, setShowClearInvoiceConfirm] = useState(false);
+  const [showQuotationConfirm, setShowQuotationConfirm] = useState(false);
+  const [showFullyPaidConfirm, setShowFullyPaidConfirm] = useState(false);
 
   const inputRef = useRef(null);
 
@@ -336,7 +344,7 @@ const InvoiceComponent = () => {
 
   const handleShowProductHistory = (item) => {
     if (!customerId) {
-      alert('Please select a customer first to view product history.');
+      showWarningToast('Please select a customer first to view product history.');
       return;
     }
     setSelectedProductForHistory(item);
@@ -376,154 +384,151 @@ const InvoiceComponent = () => {
   const generateInvoice = async () => {
 
     if (!billType || !totalAmount) {
-      alert("Please fill all the required fields.");
+      showWarningToast("Please fill all the required fields.");
       return;
     }
 
-    const userConfirmed = window.confirm(
-      "Are you sure you want to Generate the invoice? This action cannot be undone."
-    );
+    setShowGenerateInvoiceConfirm(true);
+  };
 
-    if (userConfirmed) {
-      setIsLoading(true)
-      console.log(selectedItems)
-      try {
-        const billItems = selectedItems.map((item) => ({
-          productId: item._id,
-          quantity: item.quantity,
-          billItemDiscount: item.discount,
-          billItemPrice: item.salePrice1,
-          billItemPack: item.productPack,
-          billItemUnit: item.billItemUnit,
-        }))
+  const confirmGenerateInvoice = async () => {
+    setShowGenerateInvoiceConfirm(false);
+    setIsLoading(true)
+    console.log(selectedItems)
+    try {
+      const billItems = selectedItems.map((item) => ({
+        productId: item._id,
+        quantity: item.quantity,
+        billItemDiscount: item.discount,
+        billItemPrice: item.salePrice1,
+        billItemPack: item.productPack,
+        billItemUnit: item.billItemUnit,
+      }))
 
-        // console.log('first', description,
-        //   'billType:', billType,
-        //   billPaymentType,
-        //   'customer:', customerId,
-        //   billItems,
-        //   'flatDiscount:', flatDiscount || 0,
-        //   'billStatus:', isPaid,
-        //   'totalAmount:', totalAmount || 0,
-        //   'paidAmount:', paidAmount || 0,
-        //   dueDate,
-        //   'extraItems:', extraProducts)
+      // console.log('first', description,
+      //   'billType:', billType,
+      //   billPaymentType,
+      //   'customer:', customerId,
+      //   billItems,
+      //   'flatDiscount:', flatDiscount || 0,
+      //   'billStatus:', isPaid,
+      //   'totalAmount:', totalAmount || 0,
+      //   'paidAmount:', paidAmount || 0,
+      //   dueDate,
+      //   'extraItems:', extraProducts)
 
-        const response = await config.createInvoice({
-          description,
-          billType,
-          billPaymentType: "cash",
-          customer: customerId,
-          billItems,
-          flatDiscount: flatDiscount || 0,
-          billStatus: parseInt(totalAmount - paidAmount - flatDiscount) === 0 ? 'paid' : 'unpaid',
-          totalAmount: totalAmount || 0,
-          paidAmount: paidAmount || 0,
-          dueDate,
-          extraItems: extraProducts
-        });
+      const response = await config.createInvoice({
+        description,
+        billType,
+        billPaymentType: "cash",
+        customer: customerId,
+        billItems,
+        flatDiscount: flatDiscount || 0,
+        billStatus: parseInt(totalAmount - paidAmount - flatDiscount) === 0 ? 'paid' : 'unpaid',
+        totalAmount: totalAmount || 0,
+        paidAmount: paidAmount || 0,
+        dueDate,
+        extraItems: extraProducts
+      });
 
-        if (response) {
-          console.log("response: ", response);
-          dispatch(setSelectedItems([]))
-          dispatch(setFlatDiscount(0))
-          dispatch(setTotalQty(0))
-          dispatch(setTotalAmount(0))
-          dispatch(setTotalGrossAmount(0))
-          dispatch(setPaidAmount(''))
-          dispatch(setPreviousBalance(0))
-          dispatch(setProductName(''))
-          dispatch(setProductQuantity(''))
-          dispatch(setProductDiscount(''))
-          dispatch(setProductPrice(''))
-          dispatch(setProduct({}))
-          dispatch(setCustomer(null));
-          dispatch(setExtraProducts([]))
-        }
-
-        setViewBillNo(billNo)
-        setIsInvoiceGenerated(true);
-        fetchLastBillNo(billType)
-
-        if (response) {
-          const allProductsBefore = await config.fetchAllProducts();
-          if (allProductsBefore.data) {
-            dispatch(setAllProducts(allProductsBefore.data));
-          }
-        }
-
-      } catch (error) {
-        console.error('Failed to generate bill', error.response.data)
-        const errorMessage = extractErrorMessage(error)
-        setBillError(errorMessage)
-      } finally {
-        setIsLoading(false)
-
+      if (response) {
+        console.log("response: ", response);
+        dispatch(setSelectedItems([]))
+        dispatch(setFlatDiscount(0))
+        dispatch(setTotalQty(0))
+        dispatch(setTotalAmount(0))
+        dispatch(setTotalGrossAmount(0))
+        dispatch(setPaidAmount(''))
+        dispatch(setPreviousBalance(0))
+        dispatch(setProductName(''))
+        dispatch(setProductQuantity(''))
+        dispatch(setProductDiscount(''))
+        dispatch(setProductPrice(''))
+        dispatch(setProduct({}))
+        dispatch(setCustomer(null));
+        dispatch(setExtraProducts([]))
       }
+
+      setViewBillNo(billNo)
+      setIsInvoiceGenerated(true);
+      fetchLastBillNo(billType)
+
+      if (response) {
+        const allProductsBefore = await config.fetchAllProducts();
+        if (allProductsBefore.data) {
+          dispatch(setAllProducts(allProductsBefore.data));
+        }
+      }
+
+    } catch (error) {
+      console.error('Failed to generate bill', error.response.data)
+      const errorMessage = extractErrorMessage(error)
+      setBillError(errorMessage)
+    } finally {
+      setIsLoading(false)
     }
   };
 
   const clearInvoice = () => {
-    const userConfirmed = window.confirm(
-      "Are you sure you want to clear the invoice?"
-    );
+    setShowClearInvoiceConfirm(true);
+  };
 
-    if (userConfirmed) {
-      // Clear all the invoice-related states
-      dispatch(setSelectedItems([]));
-      dispatch(setFlatDiscount(0));
-      dispatch(setTotalQty(0));
-      dispatch(setTotalAmount(0));
-      dispatch(setTotalGrossAmount(0));
-      dispatch(setPaidAmount(''));
-      dispatch(setPreviousBalance(0));
-      dispatch(setProductName(''));
-      dispatch(setProductQuantity(''));
-      dispatch(setProductDiscount(''));
-      dispatch(setProductPrice(''));
-      dispatch(setProduct({}));
-      dispatch(setExtraProducts([]));
-    }
+  const confirmClearInvoice = () => {
+    setShowClearInvoiceConfirm(false);
+    // Clear all the invoice-related states
+    dispatch(setSelectedItems([]));
+    dispatch(setFlatDiscount(0));
+    dispatch(setTotalQty(0));
+    dispatch(setTotalAmount(0));
+    dispatch(setTotalGrossAmount(0));
+    dispatch(setPaidAmount(''));
+    dispatch(setPreviousBalance(0));
+    dispatch(setProductName(''));
+    dispatch(setProductQuantity(''));
+    dispatch(setProductDiscount(''));
+    dispatch(setProductPrice(''));
+    dispatch(setProduct({}));
+    dispatch(setExtraProducts([]));
+    showSuccessToast('Invoice cleared successfully!');
   };
 
   const generateQuotation = () => {
     if (!billType || !billPaymentType || !totalAmount) {
-      alert("Please fill all the required fields.");
+      showWarningToast("Please fill all the required fields.");
       return;
     }
 
-    const userConfirmed = window.confirm(
-      "Do you want to save this as a Quotation?"
-    );
+    setShowQuotationConfirm(true);
+  };
 
-    if (userConfirmed) {
-      const quotation = {
-        id: Date.now(), // unique id
-        description,
-        billType,
-        billPaymentType,
-        customer: customerId,
-        billItems: selectedItems.map((item) => ({
-          productId: item._id,
-          quantity: item.quantity,
-          billItemDiscount: item.discount,
-          billItemPrice: item.salePrice1,
-          billItemPack: item.productPack,
-          billItemUnit: item.billItemUnit,
-        })),
-        flatDiscount: flatDiscount || 0,
-        totalAmount: totalAmount || 0,
-        paidAmount: paidAmount || 0,
-        dueDate,
-        extraItems: extraProducts,
-        createdAt: new Date().toISOString()
-      };
+  const confirmGenerateQuotation = () => {
+    setShowQuotationConfirm(false);
+    const quotation = {
+      id: Date.now(), // unique id
+      description,
+      billType,
+      billPaymentType,
+      customer: customerId,
+      billItems: selectedItems.map((item) => ({
+        productId: item._id,
+        quantity: item.quantity,
+        billItemDiscount: item.discount,
+        billItemPrice: item.salePrice1,
+        billItemPack: item.productPack,
+        billItemUnit: item.billItemUnit,
+      })),
+      flatDiscount: flatDiscount || 0,
+      totalAmount: totalAmount || 0,
+      paidAmount: paidAmount || 0,
+      dueDate,
+      extraItems: extraProducts,
+      createdAt: new Date().toISOString()
+    };
 
-      // save in localStorage
-      // saveQuotation(quotation);
+    // save in localStorage
+    // saveQuotation(quotation);
 
-      alert("Quotation saved successfully ✅");
-    }
+    showSuccessToast("Quotation saved successfully!");
   };
 
 
@@ -549,93 +554,89 @@ const InvoiceComponent = () => {
   const handleFullyPaid = async () => {
 
     if (!billType || !billPaymentType || !totalAmount) {
-      alert("Please fill all the required fields.");
+      showWarningToast("Please fill all the required fields.");
       return;
     }
 
-    const userConfirmed = window.confirm(
-      "Are you sure you want to Generate the invoice? This action cannot be undone."
-    );
+    setShowFullyPaidConfirm(true);
+  };
 
+  const confirmFullyPaid = async () => {
+    setShowFullyPaidConfirm(false);
     const billId = billNo || ""
 
-    if (!userConfirmed) return;
+    setIsLoading(true)
+    console.log(selectedItems)
+    try {
+      const billItems = selectedItems.map((item) => ({
+        productId: item._id,
+        quantity: item.quantity,
+        billItemDiscount: item.discount,
+        billItemPrice: item.salePrice1,
+        billItemPack: item.productPack,
+        billItemUnit: item.billItemUnit,
+      }))
 
-    if (userConfirmed) {
-      setIsLoading(true)
-      console.log(selectedItems)
-      try {
-        const billItems = selectedItems.map((item) => ({
-          productId: item._id,
-          quantity: item.quantity,
-          billItemDiscount: item.discount,
-          billItemPrice: item.salePrice1,
-          billItemPack: item.productPack,
-          billItemUnit: item.billItemUnit,
-        }))
+      // console.log('first', description,
+      //   'billType:', billType,
+      //   billPaymentType,
+      //   'customer:', customerId,
+      //   billItems,
+      //   'flatDiscount:', flatDiscount || 0,
+      //   'billStatus:', isPaid,
+      //   'totalAmount:', totalAmount || 0,
+      //   'paidAmount:', paidAmount || 0,
+      //   dueDate,
+      //   'extraItems:', extraProducts)
 
-        // console.log('first', description,
-        //   'billType:', billType,
-        //   billPaymentType,
-        //   'customer:', customerId,
-        //   billItems,
-        //   'flatDiscount:', flatDiscount || 0,
-        //   'billStatus:', isPaid,
-        //   'totalAmount:', totalAmount || 0,
-        //   'paidAmount:', paidAmount || 0,
-        //   dueDate,
-        //   'extraItems:', extraProducts)
+      const response = await config.createInvoice({
+        description,
+        billType,
+        billPaymentType: "cash",
+        customer: customerId,
+        billItems,
+        flatDiscount: 0,
+        billStatus: 'paid',
+        totalAmount: totalAmount || 0,
+        paidAmount: totalAmount || 0,
+        dueDate,
+        extraItems: extraProducts
+      });
 
-        const response = await config.createInvoice({
-          description,
-          billType,
-          billPaymentType: "cash",
-          customer: customerId,
-          billItems,
-          flatDiscount: 0,
-          billStatus: 'paid',
-          totalAmount: totalAmount || 0,
-          paidAmount: totalAmount || 0,
-          dueDate,
-          extraItems: extraProducts
-        });
-
-        if (response) {
-          console.log("response: ", response);
-          dispatch(setSelectedItems([]))
-          dispatch(setFlatDiscount(0))
-          dispatch(setTotalQty(0))
-          dispatch(setTotalAmount(0))
-          dispatch(setTotalGrossAmount(0))
-          dispatch(setPaidAmount(''))
-          dispatch(setPreviousBalance(0))
-          dispatch(setProductName(''))
-          dispatch(setProductQuantity(''))
-          dispatch(setProductDiscount(''))
-          dispatch(setProductPrice(''))
-          dispatch(setProduct({}))
-          dispatch(setCustomer(null));
-          dispatch(setExtraProducts([]))
-
-        }
-        setViewBillNo(billNo)
-        fetchLastBillNo(billType)
-
-        if (response) {
-          const allProductsBefore = await config.fetchAllProducts();
-          if (allProductsBefore.data) {
-            dispatch(setAllProducts(allProductsBefore.data));
-          }
-        }
-
-      } catch (error) {
-        console.error('Failed to generate bill', error.response.data)
-        const errorMessage = extractErrorMessage(error)
-        setBillError(errorMessage)
-      } finally {
-        setIsLoading(false)
+      if (response) {
+        console.log("response: ", response);
+        dispatch(setSelectedItems([]))
+        dispatch(setFlatDiscount(0))
+        dispatch(setTotalQty(0))
+        dispatch(setTotalAmount(0))
+        dispatch(setTotalGrossAmount(0))
+        dispatch(setPaidAmount(''))
+        dispatch(setPreviousBalance(0))
+        dispatch(setProductName(''))
+        dispatch(setProductQuantity(''))
+        dispatch(setProductDiscount(''))
+        dispatch(setProductPrice(''))
+        dispatch(setProduct({}))
+        dispatch(setCustomer(null));
+        dispatch(setExtraProducts([]))
 
       }
+      setViewBillNo(billNo)
+      fetchLastBillNo(billType)
+
+      if (response) {
+        const allProductsBefore = await config.fetchAllProducts();
+        if (allProductsBefore.data) {
+          dispatch(setAllProducts(allProductsBefore.data));
+        }
+      }
+
+    } catch (error) {
+      console.error('Failed to generate bill', error.response.data)
+      const errorMessage = extractErrorMessage(error)
+      setBillError(errorMessage)
+    } finally {
+      setIsLoading(false)
     }
 
     if (!billError) {
@@ -1120,7 +1121,7 @@ const InvoiceComponent = () => {
 
 
           <div className='col-span-2 flex items-center'>
-            <div className={`w-full rounded-md ${billType === 'thermal' ? "bg-purple-500" : A4Color.a4100}`}>
+            <div className={`w-40 rounded-md ${billType === 'thermal' ? "bg-purple-500" : A4Color.a4100}`}>
               <QuotationComponent
                 selectedItems={selectedItems}
                 totalAmount={totalAmount}
@@ -1191,7 +1192,7 @@ const InvoiceComponent = () => {
                     dispatch(setExtraProducts(payload.extraItems ?? []));
                   }
 
-                  alert(`Quotation "${q.name}" loaded into invoice ✅`);
+                  showInfoToast(`Quotation "${q.name}" loaded into invoice`);
                 }}
               />
             </div>
@@ -1601,6 +1602,52 @@ const InvoiceComponent = () => {
           </div>
         </div>
       </div>
+
+      {/* Generate Invoice Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showGenerateInvoiceConfirm}
+        onConfirm={confirmGenerateInvoice}
+        onCancel={() => setShowGenerateInvoiceConfirm(false)}
+        title="Generate Invoice"
+        message="Are you sure you want to generate this invoice? This action cannot be undone."
+        type="add"
+        confirmText="Generate"
+        isLoading={isLoading}
+      />
+
+      {/* Clear Invoice Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showClearInvoiceConfirm}
+        onConfirm={confirmClearInvoice}
+        onCancel={() => setShowClearInvoiceConfirm(false)}
+        title="Clear Invoice"
+        message="Are you sure you want to clear this invoice? All entered data will be lost."
+        type="warning"
+        confirmText="Clear"
+      />
+
+      {/* Save Quotation Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showQuotationConfirm}
+        onConfirm={confirmGenerateQuotation}
+        onCancel={() => setShowQuotationConfirm(false)}
+        title="Save Quotation"
+        message="Do you want to save this as a Quotation?"
+        type="add"
+        confirmText="Save"
+      />
+
+      {/* Fully Paid Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showFullyPaidConfirm}
+        onConfirm={confirmFullyPaid}
+        onCancel={() => setShowFullyPaidConfirm(false)}
+        title="Generate Fully Paid Invoice"
+        message="Are you sure you want to generate this invoice as fully paid? This action cannot be undone."
+        type="add"
+        confirmText="Generate"
+        isLoading={isLoading}
+      />
 
     </div>)
     :

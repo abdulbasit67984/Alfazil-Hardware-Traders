@@ -10,6 +10,8 @@ import {
     setAllProducts
 } from '../../../store/slices/products/productsSlice';
 import ButtonLoader from '../../ButtonLoader';
+import { showSuccessToast, showErrorToast } from '../../../utils/toast';
+import ConfirmationModal from '../../ConfirmationModal';
 
 const StockSearch = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +26,8 @@ const StockSearch = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [deleteId, setDeleteId] = useState('');
     const [totalInventory, setTotalInventory] = useState(0);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
 
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
@@ -95,11 +99,13 @@ const StockSearch = () => {
 
         if (cleanedData.productId === undefined) {
             setError("No product ID found!");
+            showErrorToast("No product ID found!");
             return;
         }
 
         if (Object.keys(cleanedData).length === 0) {
             setError("No data added to update!");
+            showErrorToast("No data added to update!");
             return;
         }
 
@@ -111,6 +117,7 @@ const StockSearch = () => {
                 setIsStockUpdated(true);
                 setIsButtonLoading(false);
                 setIsEdit(false);
+                showSuccessToast(response.message || 'Product updated successfully!');
                 reset();
 
                 const allProductsBefore = await config.fetchAllProducts();
@@ -120,6 +127,7 @@ const StockSearch = () => {
             }
         } catch (error) {
             console.log("error updating Product:", error);
+            showErrorToast('Failed to update product');
         } finally {
             setIsLoading(false);
             setIsStockUpdated(true);
@@ -128,15 +136,19 @@ const StockSearch = () => {
     };
 
     const handleDelete = async (id) => {
+        setProductToDelete(id);
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!productToDelete) return;
+        
         setIsButtonLoading(true);
-        setDeleteId(id);
-
-        const confirm = window.confirm('Are You sure to want to delete this product? This Action cannot be undone!')
-
-        if (!confirm) return
+        setDeleteId(productToDelete);
+        setShowDeleteConfirm(false);
 
         try {
-            const response = await config.deleteProduct(id);
+            const response = await config.deleteProduct(productToDelete);
             if (response) {
                 setSuccessMessage(response.message);
                 setIsButtonLoading(false);
@@ -144,6 +156,7 @@ const StockSearch = () => {
                 setDeleteId('');
                 setIsLoading(false);
                 setIsStockUpdated(true);
+                showSuccessToast('Product deleted successfully!');
 
                 const allProductsBefore = await config.fetchAllProducts();
                 if (allProductsBefore.data) {
@@ -152,11 +165,13 @@ const StockSearch = () => {
             }
         } catch (error) {
             console.log("error deleting Product:", error);
+            showErrorToast('Failed to delete product');
         } finally {
             setIsLoading(false);
             setIsStockUpdated(true);
             setDeleteId('');
             setIsButtonLoading(false);
+            setProductToDelete(null);
         }
     };
 
@@ -229,6 +244,18 @@ const StockSearch = () => {
 
     return !isEdit ? (
         <div className='bg-white rounded-lg'>
+            <ConfirmationModal
+                isOpen={showDeleteConfirm}
+                onConfirm={confirmDelete}
+                onCancel={() => {
+                    setShowDeleteConfirm(false);
+                    setProductToDelete(null);
+                }}
+                type="delete"
+                title="Delete Product"
+                message="Are you sure you want to delete this product? This action cannot be undone!"
+                isLoading={isButtonLoading}
+            />
             <div className="w-full px-5 py-5">
                 <h2 className="text-lg text-center pt-2 font-semibold mb-2">Search for Stock</h2>
                 <div className="text-xs text-red-500 mb-2 text-center">

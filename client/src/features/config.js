@@ -1487,6 +1487,42 @@ export class Config {
         }
     }
 
+    async logoutWhatsapp() {
+        try {
+            const response = await this.client.post(`/whatsapp/logout`, {}, {
+                headers: {
+                    Authorization: `Bearer ${authService.getAccessToken()}`,
+                },
+            });
+            if (response.data) {
+                return response.data;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Error logging out WhatsApp:", error);
+            throw error;
+        }
+    }
+
+    async reconnectWhatsapp() {
+        try {
+            const response = await this.client.post(`/whatsapp/reconnect`, {}, {
+                headers: {
+                    Authorization: `Bearer ${authService.getAccessToken()}`,
+                },
+            });
+            if (response.data) {
+                return response.data;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error("Error reconnecting WhatsApp:", error);
+            throw error;
+        }
+    }
+
     async getDailyReports(dateRange) {
         try {
             const response = await this.client.get(`/reports/daily-reports?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`, {

@@ -102,9 +102,10 @@ const registerBill = asyncHandler(async (req, res) => {
                 if (typeof purchaseCost !== "number" || isNaN(purchaseCost)) {
                     // console.log('purchaseCost', purchaseCost)
                     console.log(typeof (purchaseCost))
-                    throw new Error(`Invalid purchase cost calculated for product ID ${productId}`);
+                    // throw new Error(`Invalid purchase cost calculated for product ID ${productId}`);
+                } else {
+                    totalPurchaseAmount += purchaseCost;
                 }
-                totalPurchaseAmount += purchaseCost;
 
                 const product = await Product.findById(productId);
                 if (!product) {
@@ -333,7 +334,9 @@ const registerBill = asyncHandler(async (req, res) => {
 
 
             if (customer && mobileNo) {
-                await sendWhatsappMessage(mobileNo, `Thank you for choosing Alfazil Hardware Traders`);
+                await sendWhatsappMessage(mobileNo, `Thank you for choosing Mubarak Sanitary Traders! \nYour bill has been successfully created.
+                \n\n*Bill Details:*\nBill No: ${billNo}\nCustomer: ${customerDetails?.customerName}\nTotal Bill: ${totalAmount}\nFlat Discount: ${flatDiscount}\nPaid Amount: ${paidAmount}\n*Net Total:* ${totalAmount - flatDiscount - paidAmount}
+                \n\n_Powered by PANDAS Software_`);
             }
 
             // const test = true;

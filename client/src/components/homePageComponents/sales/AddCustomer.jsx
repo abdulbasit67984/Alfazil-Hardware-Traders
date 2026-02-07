@@ -7,6 +7,7 @@ import Loader from '../../../pages/Loader';
 import { useSelector, useDispatch } from 'react-redux';
 import { setCustomerData } from '../../../store/slices/customer/customerSlice'
 import { extractErrorMessage } from '../../../utils/extractErrorMessage';
+import { showSuccessToast, showErrorToast } from '../../../utils/toast';
 
 
 const AddCustomer = ({ onCustomerCreated }) => {
@@ -50,6 +51,7 @@ const AddCustomer = ({ onCustomerCreated }) => {
         console.log("comp res: ", response.message)
         setIsLoading(false)
         setIsCustomerCreated(true)
+        showSuccessToast(response.message || 'Customer added successfully!')
         // setCustomerId(response.data?._id)
 
         const newCustomer = response.data;
@@ -73,6 +75,7 @@ const AddCustomer = ({ onCustomerCreated }) => {
       const message = extractErrorMessage(error)
       console.log('message', message)
       setErrorMessage(message)
+      showErrorToast(message || 'Failed to add customer')
       setTimeout(() => {
         setErrorMessage('');
       }, 4000);

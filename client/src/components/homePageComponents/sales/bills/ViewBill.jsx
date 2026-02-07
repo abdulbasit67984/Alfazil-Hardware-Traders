@@ -4,6 +4,8 @@ import Logo from '../../../Logo';
 import commonFunction from '../../../../features/functions';
 import billLogo from '../../../../assets/billLogo.jpeg'
 import paymentQR from '../../../../assets/paymentQR.jpeg'
+
+import billDesign from '../../../../assets/billDesign.svg'
 // import { useSelector } from 'react-redux';
 
 // ViewBill component wrapped in forwardRef
@@ -24,13 +26,14 @@ const ViewBill = React.forwardRef((props, ref) => {
         <div className=' h-[28rem] shadow-lg overflow-y-auto scrollbar-thin'>
             <div ref={ref} className="view-bill p-4 pt-8 bg-white" >
                 {/* Business Information */}
-                <div className="flex justify-center">
+                
+                <div className="flex justify-center relative">
 
                     <div className=''>
-                        {/* <img src={billLogo} alt="" className='w-40 ' /> */}
+                        <img src={billLogo} alt="" className='w-40 ' />
                     </div>
 
-                    <div className='text-center w-full'>
+                    <div className='text-center w-full z-20'>
                         <div className='flex pl-4'>
 
                             <div className='flex items-end justify-center '>
@@ -38,11 +41,13 @@ const ViewBill = React.forwardRef((props, ref) => {
 
                             </div>
                         </div>
-                        <p className="text-sm ">{bill?.storeAddress}</p>
-                        <p className="text-sm text-left ml-5 "><span className='font-bold'>Phone</span> &#128382;: {bill?.BusinessId?.owner?.mobileno?.map((num, i) => <span className='px-1' key={i}>{num}</span>)} | <span className='font-bold'>Address</span> &#10003;: {bill?.BusinessId?.businessRegion}</p>
-                        <h3 className="text-xl font-bold mt-4 text-left ml-5">{packingSlip ? 'Packing Slip' : 'Sale Invoice'}</h3>
+                        {/* <p className="text-sm ">{bill?.storeAddress}</p> */}
+                        <p className="text-xs text-left ml-4 "><span className='font-bold'>Phone</span> &#128382;: {bill?.BusinessId?.owner?.mobileno?.map((num, i) => <span className='px-1' key={i}>{num}</span>)} | <span className='font-bold'>Address</span> &#10003;: {bill?.BusinessId?.businessRegion}</p>
+                        <h3 className="text-xl font-bold mt-4 text-left ml-52">{packingSlip ? 'Packing Slip' : 'Sale Invoice'}</h3>
                     </div>
-                    <div></div>
+                    <div>
+                        <img className='absolute right-0 -bottom-5 h-32 z-10 ' src={billDesign} alt="" />
+                    </div>
                 </div>
 
                 <div className='w-full flex justify-center'><div className='border-b-2 my-5 w-4/5'></div></div>
