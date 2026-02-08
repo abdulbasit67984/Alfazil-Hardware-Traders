@@ -443,7 +443,7 @@ const StockSearch = () => {
                                         className="w-full px-2 py-1 border rounded-md text-xs"
                                     />
                                 </div>
-                                <div className="mb-2">
+                                {/* <div className="mb-2">
                                     <label className="block text-gray-700 text-xs">Sale Price 3</label>
                                     <input
                                         type="text"
@@ -458,7 +458,7 @@ const StockSearch = () => {
                                         {...register('salePrice4')}
                                         className="w-full px-2 py-1 border rounded-md text-xs"
                                     />
-                                </div>
+                                </div> */}
                                 
                                 {/* Purchase Price */}
                                 <div className="mb-2">

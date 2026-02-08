@@ -618,7 +618,7 @@ const PurchaseItem = () => {
                     />
                   </div>
                 )}
-              {
+              {/* {
                 addSalePrice && (
                   <div>
                     <Input
@@ -631,8 +631,8 @@ const PurchaseItem = () => {
                       className="p-1"
                     />
                   </div>
-                )}
-              {
+                )} */}
+              {/* {
                 addSalePrice && (
                   <div>
                     <Input
@@ -645,7 +645,7 @@ const PurchaseItem = () => {
                       className="p-1"
                     />
                   </div>
-                )}
+                )} */}
 
 
               <div className="flex items-center gap-2">

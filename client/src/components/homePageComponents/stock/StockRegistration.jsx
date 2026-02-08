@@ -250,7 +250,7 @@ const StockRegistrationForm = () => {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              {/* <div className="grid grid-cols-2 gap-2">
                 <div className="mb-2">
                   <label className="block text-gray-700 text-xs">Sale Price 3</label>
                   <input
@@ -267,7 +267,7 @@ const StockRegistrationForm = () => {
                     className="w-full px-2 py-1 border rounded-md text-xs"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Right Column */}
